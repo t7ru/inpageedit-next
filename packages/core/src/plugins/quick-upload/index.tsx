@@ -245,13 +245,13 @@ export class PluginQuickUpload extends BasePlugin {
 
     const repo = this.ctx.wikiFile.writableFileRepo
     const targetApi = repo ? this.ctx.apiService.getClientByFileRepo(repo) : undefined
-    const licensesPromise = fetchUploadLicenses(
-      targetApi || this.ctx.api,
-      this.ctx.wiki.general.lang
-    ).catch((e) => {
-      this.logger.warn('Failed to fetch upload licenses', e)
-      return null
-    })
+    const targetLang = await this.ctx.wiki.getContentLanguage(targetApi)
+    const licensesPromise = fetchUploadLicenses(targetApi || this.ctx.api, targetLang).catch(
+      (e) => {
+        this.logger.warn('Failed to fetch upload licenses', e)
+        return null
+      }
+    )
     const defaultSummary = (await this.ctx.preferences.get('quickUpload.summary')) || ''
     const exts = await this.ctx.wiki.getAllowedFileExtensions(targetApi)
 
