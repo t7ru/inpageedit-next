@@ -248,7 +248,10 @@ export class PluginQuickUpload extends BasePlugin {
     const licensesPromise = fetchUploadLicenses(
       targetApi || this.ctx.api,
       this.ctx.wiki.general.lang
-    )
+    ).catch((e) => {
+      this.logger.warn('Failed to fetch upload licenses', e)
+      return null
+    })
     const defaultSummary = (await this.ctx.preferences.get('quickUpload.summary')) || ''
     const exts = await this.ctx.wiki.getAllowedFileExtensions(targetApi)
 
@@ -1099,6 +1102,7 @@ export class PluginQuickUpload extends BasePlugin {
     }
 
     void licensesPromise.then((data) => {
+      if (!data) return
       licenseOptions = data.options
       licenseHeader = data.licenseHeader
       void renderPreview()
